@@ -5,6 +5,7 @@ dependencies:
   - python=3.10
   - scipy
   - matplotlib
-  - numpy
+  - numpy=1.25
   - pytorch
+  - ipykernel
 prefix: /Users/tommann/miniconda3/envs/project_iv_py10
