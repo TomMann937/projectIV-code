@@ -14,16 +14,57 @@ def predict_one_step(model, window, device=None):
     raise TypeError("Window must be a numpy array or torch tensor")
   
   if window.ndim == 1:
-    window = window.unsqueeze(1)
-
-  window = window.unsqueeze(0).to(device) 
-
-  if window.ndim != 3:
+    window = window.unsqueeze(0).unsqueeze(-1)
+  elif window.ndim == 2:
+    window = window.unsqueeze(0)
+  elif window.ndim == 3:
+    pass
+  else:
     raise ValueError(f"window must end up 3D, got shape {window.shape}")
+  
+  window = window.to(device) 
 
   model.eval()
   with torch.no_grad():
     pred = model(window)
 
-  return pred.squeeze().cpu().numpy()
+  return pred.squeeze().cpu()
 
+
+def predict_autoregressive(model, window, steps=1, device=None):
+
+  if device is None:
+    device = next(model.parameters()).device
+
+  if isinstance(window, np.ndarray):
+    window = torch.tensor(window, dtype=torch.float32)
+  elif isinstance(window, torch.Tensor):
+    window = window.float()
+  else:
+    raise TypeError("Window must be a numpy array or torch tensor")
+  
+  if window.ndim == 1:
+    window = window.unsqueeze(0).unsqueeze(-1)
+  elif window.ndim == 2:
+    window = window.unsqueeze(0)
+  elif window.ndim == 3:
+    pass
+  else:
+    raise ValueError(f"window must end up 3D, got shape {window.shape}")
+  
+  window = window.to(device) 
+
+  model.eval()
+  with torch.no_grad():
+    for _ in range(steps):
+
+      # Predict next step, shape: (batch, output_size)
+      next_pred = model(window)
+
+      # expand pred to give shape: (batch, 1, ouput_size)
+      next_pred_expanded = next_pred.unsqueeze(1)
+
+      #  Update window, remove first observation and append new prediction
+      window = torch.cat((window[:, 1:, :], next_pred_expanded), dim=1)
+
+  return next_pred.cpu()
