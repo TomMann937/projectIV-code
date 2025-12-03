@@ -46,6 +46,9 @@ def generate_data(length: int, noise_level: float = 0, time_step: float = 0.05, 
     noise = np.random.normal(0, noise_level * std_dev, size = y.shape)
     y = y + noise
 
+  #  Transpose to return shape (time_steps, num_features)
+  y = y.T
+
   return y
 
 

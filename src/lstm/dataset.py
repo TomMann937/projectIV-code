@@ -3,8 +3,8 @@ from torch.utils.data import Dataset
 
 class WindowedTimeSeries(Dataset):
   def __init__(self, series, seq_length):
-    # Transpose as Pytroch expects shape: (time_steps, num_features)
-    self.series = torch.tensor(series, dtype=torch.float32).T
+    
+    self.series = torch.tensor(series, dtype=torch.float32)
     # Length of window
     self.seq_length = seq_length
 
