@@ -49,8 +49,8 @@ class LorenzModel:
     if y.ndim == 1:
       y = y[np.newaxis, :]
 
-    if Decimal(str(t_step)) % Decimal(str(dt)) != Decimal("0.0"):
-      raise ValueError(f"Time step: {t_step}, is not a multiple of dt: {dt}")
+    # if Decimal(str(t_step)) % Decimal(str(dt)) != Decimal("0.0"):
+    #   raise ValueError(f"Time step: {t_step}, is not a multiple of dt: {dt}")
     
     steps = int(t_step / dt)
 

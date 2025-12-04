@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from .model import LSTMModel
 #from tqdm import tqdm  
 
-def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_size=32, learning_rate=0.01, num_epochs=50, device='cpu'):
+def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_size=32, learning_rate=0.01, num_epochs=50, device='cpu', silence=False):
   # Determine input and output size
   input_size = train_dataset[0][0].shape[1]
   output_size = train_dataset[0][1].shape[0]
@@ -56,7 +56,7 @@ def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_
       val_loss /= len(val_loader.dataset)
 
               # Print progress every 10 epochs
-    if (epoch + 1) % 10 == 0:
+    if (not silence) and (epoch + 1) % 10 == 0:
       if val_loss is not None:
         print(f'Epoch [{epoch+1}/{num_epochs}], train_loss: {train_loss:.4f}, val_loss: {val_loss:.4f}')
       else:
