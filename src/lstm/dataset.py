@@ -15,7 +15,7 @@ class WindowedTimeSeries(Dataset):
     self.seq_length = seq_length
 
   def __len__(self):
-    return self.series.shape[0] - self.seq_length
+    return self.input_series.shape[0] - self.seq_length
   
   def __getitem__(self, idx):
     # Get a single window and it's target
