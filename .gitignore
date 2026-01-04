@@ -1,3 +1,8 @@
+*.pt
+*.pth
+checkpoints/
+
+
 # vscode
 .vscode/
 
