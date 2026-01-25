@@ -1,5 +1,7 @@
 import torch
 import numpy as np
+from torch.utils.data import DataLoader
+import torch.nn as nn
 
 def predict_one_step(model, window, device=None):
 
@@ -67,4 +69,37 @@ def predict_autoregressive(model, window, steps=1, device=None):
       #  Update window, remove first observation and append new prediction
       window = torch.cat((window[:, 1:, :], next_pred_expanded), dim=1)
 
-  return next_pred.cpu()
+  return next_pred
+
+def evaluate_model(model, test_dataset, device=None):
+
+  if device is None:
+    device = next(model.parameters()).device
+
+  model = model.to(device)
+
+  model.eval()
+
+  test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+
+  preds_all = []
+  target_all = []
+
+  with torch.no_grad():
+    for X_batch, Y_batch in test_loader:
+      X_batch = X_batch.to(device)
+      Y_batch = Y_batch.to(device)
+
+      preds = predict_autoregressive(model, X_batch)
+
+      preds_all.append(preds)
+      target_all.append(Y_batch)
+
+
+    preds_all = torch.cat(preds_all, dim=0)
+    target_all = torch.cat(target_all, dim=0)
+  
+
+  mse = nn.MSELoss()(preds_all, target_all)
+
+  return mse.item()
