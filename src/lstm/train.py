@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from .model import LSTMModel
-#from tqdm import tqdm  
+ 
+def physics_loss(pred, phys_pred):
+    return torch.mean((pred - phys_pred) ** 2)
 
-def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_size=32, learning_rate=0.01, num_epochs=50, patience=5, device='cpu', silence=False):
+def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_size=32, learning_rate=0.01, num_epochs=50, patience=10, device='cpu', silence=False, physics_model=None, lambda_phys=0):
   # Determine input and output size
   input_size = train_dataset[0][0].shape[1]
   output_size = train_dataset[0][1].shape[0]
@@ -36,7 +38,15 @@ def train_model(train_dataset, hidden_size, num_layers, val_dataset=None, batch_
 
       optimizer.zero_grad()
       outputs = model(x_batch)
-      loss = criterion(outputs, y_batch)
+      data_loss = criterion(outputs, y_batch)
+      # Handles logic for PINN Loss
+      if physics_model is not None and lambda_phys > 0:
+          phys_pred = physics_model(x_batch)
+          phys_loss = physics_loss(outputs, phys_pred)
+          loss = data_loss + lambda_phys * phys_loss
+      else:
+          loss = data_loss
+
       loss.backward()
       optimizer.step()
 

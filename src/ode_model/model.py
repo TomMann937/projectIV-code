@@ -3,11 +3,12 @@ import numpy as np
 from decimal import Decimal
 
 class LorenzModel:
-  def __init__(self, c=30, sigma=10, beta=8/3, rho=28):
+  def __init__(self, c=30, sigma=10, beta=8/3, rho=28, t_step=0.05):
     self.c = c
     self.sigma = sigma
     self.beta = beta
     self.rho = rho
+    self.t_step = t_step
 
   def deriv(self, t, state):
     x, y, z = state
@@ -43,7 +44,7 @@ class LorenzModel:
     # Use axis=-1 as this handles the case when state is 1d nicely
     return np.stack([dxdt, dydt, dzdt], axis=-1)
   
-  def predict(self, y0, t_step, dt=0.01):
+  def predict(self, y0, dt=0.01):
     y = np.array(y0, copy=True)
     # Change y to (N, 3) if only 1 input given
     if y.ndim == 1:
@@ -52,7 +53,7 @@ class LorenzModel:
     # if Decimal(str(t_step)) % Decimal(str(dt)) != Decimal("0.0"):
     #   raise ValueError(f"Time step: {t_step}, is not a multiple of dt: {dt}")
     
-    steps = int(t_step / dt)
+    steps = int(self.t_step / dt)
 
     for _ in range(steps):
       k1 = self.vec_deriv(y)
@@ -64,7 +65,7 @@ class LorenzModel:
 
     return y[0] if y0.ndim == 1 else y
   
-  def update_params(self, c=None, sigma=None, beta=None, rho=None):
+  def update_params(self, c=None, sigma=None, beta=None, rho=None, t_step=None):
     if c is not None:
       self.c = c
     if sigma is not None:
@@ -73,3 +74,5 @@ class LorenzModel:
       self.beta = beta
     if rho is not None:
       self.rho = rho
+    if t_step is not None:
+      self.t_step = t_step
