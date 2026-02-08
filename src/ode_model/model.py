@@ -63,7 +63,8 @@ class LorenzModel:
 
       y = y + dt*(k1 + 2*k2 + 2*k3 + k4) / 6
 
-    return y[0] if y0.ndim == 1 else y
+    # y[0] if y0.ndim == 1 else
+    return y
   
   def update_params(self, c=None, sigma=None, beta=None, rho=None, t_step=None):
     if c is not None:

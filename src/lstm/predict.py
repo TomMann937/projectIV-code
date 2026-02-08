@@ -86,14 +86,15 @@ def evaluate_model(model, test_dataset, device=None):
   target_all = []
 
   with torch.no_grad():
-    for X_batch, Y_batch in test_loader:
-      X_batch = X_batch.to(device)
-      Y_batch = Y_batch.to(device)
+    for batch in test_loader:
+      x_obs_batch = batch["lstm_input"].to(device)
+      y_batch = batch["target"].to(device)
 
-      preds = predict_autoregressive(model, X_batch)
+
+      preds = predict_autoregressive(model, x_obs_batch)
 
       preds_all.append(preds)
-      target_all.append(Y_batch)
+      target_all.append(y_batch)
 
 
     preds_all = torch.cat(preds_all, dim=0)
