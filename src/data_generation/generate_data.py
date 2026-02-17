@@ -10,12 +10,12 @@ def derivative(t, state, sigma=10, beta=8/3, rho=28):
 
 def generate_data(length: int, noise_level: float = 0, time_step: float = 0.05, trunc=True, init: list[float] = [1,1,1]) -> np.ndarray:
   """
-  Generate synthetic data from the Lorenx-63 equations.
+  Generate synthetic data from the Lorenz-63 equations.
 
   Args:
     length (int): Length of array to be returned.
-    noise_level (float): Amount of noise to be added to data as a propotion of SD.
-    time_step (float): Time step inbetween observation.
+    noise_level (float): Amount of noise to be added to data as a proportion of SD.
+    time_step (float): Time step between observations.
     trunc (bool): Should burn in period be removed.
     init list[float]: List of point to start simulation from.
 
@@ -25,7 +25,6 @@ def generate_data(length: int, noise_level: float = 0, time_step: float = 0.05, 
 
   t = time_step * length
   if trunc: t += 100
-
   t_eval = np.arange(0, t, time_step)
 
   # Solve using RK45
