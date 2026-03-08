@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader
 import torch.nn as nn
+from scipy.stats import bootstrap
 
 def predict_one_step(model, window, device=None):
 
@@ -71,7 +72,7 @@ def predict_autoregressive(model, window, steps=1, device=None):
 
   return next_pred
 
-def evaluate_model(model, test_dataset, device=None):
+def evaluate_model(model, test_dataset, device=None, n_boot=0):
 
   if device is None:
     device = next(model.parameters()).device
@@ -81,6 +82,9 @@ def evaluate_model(model, test_dataset, device=None):
   model.eval()
 
   test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+
+  if n_boot < 0:
+    raise ValueError(f"Bootstrap size must be greater than zero, n_boot={n_boot}")
 
   preds_all = []
   target_all = []
@@ -103,4 +107,15 @@ def evaluate_model(model, test_dataset, device=None):
 
   mse = nn.MSELoss()(preds_all, target_all)
 
-  return mse.item()
+  if n_boot == 0:
+    return mse.item()
+
+  errors = preds_all - target_all
+  se = torch.mean(errors**2, dim=1).cpu().numpy()
+  res = bootstrap((se,), np.mean, confidence_level=0.95, n_resamples=n_boot)
+
+  return{
+    "mse": mse.item(),
+    "ci_lower": res.confidence_interval.low,
+    "ci_higher": res.confidence_interval.high
+  }
